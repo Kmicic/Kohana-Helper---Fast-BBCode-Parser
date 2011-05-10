@@ -22,6 +22,7 @@ protected  $html='';
 protected  $parse_arr=array();
 protected  $out_arr=array();
 protected  $selfclosetag=array('*','h');
+
 // allow for geshi highlighter
 protected  $highlight_lang ='php|delphi|pascal|sql|pcre|vb|text|xml|html|javascript';
 
@@ -62,11 +63,11 @@ protected  $template_tag = array(
 				array(	'begin'	=> '<fieldset class="checknum"><legend>Numbers check = %attr1%</legend><pre class="%attr1%" style="max-width:580px;overflow: auto;">',
 						'end'	=> '</pre></fieldset>')),  // with attributes					 
 );
-					 
-	/**
-	 * simple search list of tags for simple preg_replace php instructions
-	 */
-					 
+				 
+/**
+ * simple search list of tags for simple preg_replace php instructions
+ */
+				 
 protected  $simple_search = array(
     '/\[b\](.*?)\[\/b\]/is',					// Bold
     '/\[i\](.*?)\[\/i\]/is',					// Italic
@@ -97,9 +98,9 @@ protected  $simple_search = array(
 	'/\[tm\s*\/\]/i',							// trade mark char
   );
 
-	/**
-	 * simple replace list of tags for simple preg_replace php instructions
-	 */
+/**
+ * simple replace list of tags for simple preg_replace php instructions
+ */
 
 protected $simple_replace = array(
     '<strong>$1</strong>',
@@ -133,24 +134,26 @@ protected $simple_replace = array(
   );
 
  /**
-  * Class Factory functions.
+  * Class factory functions.
   *
   * example of use :
   * ~~~  
-  *   $return  = Helper_BBparser::Factory();
+  *   $return  = Helper_BBparser::factory();
   * ~~~  
   * or :
   * ~~~  
-  *   $return  = Helper_BBparser::Factory($BBCode_string);
+  *   $return  = Helper_BBparser::factory($BBCode_string);
   * ~~~  
   * @param   string optionally    string for parse
   * @return  object instance if param1 is empty or parsed string if param1 have bbcode hypertekst
   */
 
-public static function Factory($html=NULL)	{
-    if ($html) {
-	$parser = new Helper_BBparser();
-	return $parser->process_BBCode($html);
+public static function factory($html=NULL)	
+{
+    if ($html) 
+	{
+		$parser = new Helper_BBparser();
+		return $parser->process_bbcode($html);
 	}
 	return new Helper_BBparser();
 }
@@ -159,29 +162,29 @@ public static function Factory($html=NULL)	{
   * Run parse process.
   * example of use :
   * ~~~  
-  *   $parser  = Helper_BBparser::Factory();
-  *   $return  = $parser->process_BBCode ($BBCode_string)
+  *   $parser  = Helper_BBparser::factory();
+  *   $return  = $parser->process_bbcode ($BBCode_string)
   * ~~~
   * @param   string string for parse
   * @return  string Parsed
   */
 
-public function process_BBCode ($string) {
+public function process_bbcode ($string) 
+{
 		$s = (string) $string;
-		if (empty($s)) {
-		return '';
-		}
+		if (empty($s))  return '';
 		$this->html = $this->preprocess($s);
 
-		foreach($this->template_tag as $tag=>$values) {
-					$this->parse($tag);
-					$this->doreplacetag($tag);
+		foreach($this->template_tag as $tag=>$values) 
+		{
+			$this->parse($tag);
+			$this->doreplacetag($tag);
 		}
 return $this->html;		
 }
 
-private function parse($parse_tag) {
-
+private function parse($parse_tag) 
+{
 $TAG_OPEN  = "/\[(?P<tag>%%%tag%%%)\=?(?P<attr>[^\]]*?)?\]/usi";
 $TAG_CLOSE = "/\[\/(?P<etag>%%%tag%%%)\s?]/usi";
 
@@ -192,9 +195,10 @@ $TAG_CLOSE = "/\[\/(?P<etag>%%%tag%%%)\s?]/usi";
 		$TAG_OPEN = str_replace('%%%tag%%%',$parse_tag,$TAG_OPEN);
 		$TAG_CLOSE = str_replace('%%%tag%%%',$parse_tag,$TAG_CLOSE);
 		
-		if (preg_match_all($TAG_OPEN,$this->html,$capture,PREG_OFFSET_CAPTURE+PREG_SET_ORDER)) {
-
-		foreach($capture as $scan) {
+		if (preg_match_all($TAG_OPEN,$this->html,$capture,PREG_OFFSET_CAPTURE+PREG_SET_ORDER)) 
+		{
+			foreach($capture as $scan) 
+			{
 				$pos=$scan[0][1];
 				$tag=strtolower($scan['tag'][0]);
 				$len=strlen($scan[0][0]);
@@ -204,8 +208,10 @@ $TAG_CLOSE = "/\[\/(?P<etag>%%%tag%%%)\s?]/usi";
 		}
 	 
 
-		if (preg_match_all($TAG_CLOSE,$this->html,$capture,PREG_OFFSET_CAPTURE+PREG_SET_ORDER)) {		
-		foreach($capture as $scan) {
+		if (preg_match_all($TAG_CLOSE,$this->html,$capture,PREG_OFFSET_CAPTURE+PREG_SET_ORDER)) 
+		{		
+			foreach($capture as $scan) 
+			{
 				$pos=$scan[0][1];
 				$tag=strtolower($scan['etag'][0]);
 				$len=strlen($scan[0][0]);
@@ -216,15 +222,18 @@ $TAG_CLOSE = "/\[\/(?P<etag>%%%tag%%%)\s?]/usi";
 		usort($this->parse_arr, array('Helper_BBparser','ascsort'));
 
 		$level=array();
-		foreach($this->parse_arr as $key=>$arr) {
+		foreach($this->parse_arr as $key=>$arr) 
+		{
 
-			if ($arr["open"]) {
+			if ($arr["open"]) 
+			{
 				if (!isset($level[$arr["tag"]])) 
 					$level=array_merge($level,array($arr["tag"]=>0)); 
 				$level[$arr["tag"]]++;
 				$this->parse_arr[$key]["level"]=$level[$arr["tag"]];		
 			}		
-			else { 
+			else 
+			{ 
 			    if (!isset($level[$arr["tag"]])) 
 					$level=array_merge($level,array($arr["tag"]=>'0'));
 				$this->parse_arr[$key]["level"]=$level[$arr["tag"]];
@@ -235,7 +244,8 @@ $TAG_CLOSE = "/\[\/(?P<etag>%%%tag%%%)\s?]/usi";
 	$this->set_parse_output_array();
 }	
 
-private function doreplacetag($tag) {
+private function doreplacetag($tag) 
+{
 $out = array();
 $child=array();
 $last_root=0;
@@ -249,17 +259,18 @@ $last_root=0;
 	foreach ($out as $key=>$item) {
 	$idx = !empty($item['attr'][0]) ? 1 : 0 ;
     $cfgtag = $this->template_tag[$tag][$idx];
-
 	$calcLen = $item['innerLen'] + $diff;
 
           
 		$innerText = substr($this->html,$item['innerPos'],$calcLen);
 		$left = preg_replace("/\%attr1\%/si",$item['attr'][0],$cfgtag['begin']);
-		for ($i=1;$i<count($item['attr'])-1;$i++) {
+		for ($i=1;$i<count($item['attr'])-1;$i++) 
+		{
 		    $regex = "/\%attr$i\%/si";
 			$left = preg_replace($regex,$item['attr'][$i],$left);
-			}
-		switch ($tag) {
+		}
+		switch ($tag) 
+		{
 		case 'list' : 	$inner = preg_replace("#<br>|<br />#si","",$innerText);
 						$inner = $this->process_list_items($inner); 
 			break;	
@@ -284,10 +295,11 @@ $last_root=0;
 		
 		//$right = (!empty($item['attr'])) ? $cfgtag['altPos'] : $cfgtag['fPos'] ;
 		$right = preg_replace("/\%attr1\%/si",$item['attr'][0],$cfgtag['end']);
-		for ($i=1;$i<count($item['attr'])-1;$i++) {
+		for ($i=1;$i<count($item['attr'])-1;$i++) 
+		{
 		    $regex = "/\%attr$i\%/si";
 			$right = preg_replace($regex,$item['attr'][$i],$right);
-			}
+		}
 
 		
 		$newstr = $left.$inner.$right;
@@ -303,9 +315,11 @@ $last_root=0;
 	}
 }
 	
-private function preprocess($html)	{
+private function preprocess($html)	
+{
     $s = (string) $html;
-    if (empty($s)) {
+    if (empty($s)) 
+	{
       return '';
     }    
 	$s = nl2br($s);
@@ -316,24 +330,29 @@ private function preprocess($html)	{
 return $s;
 }
 
-private function ascsort($a,$b) {
+private function ascsort($a,$b) 
+{
 	return $a['pos']>$b['pos'] ? 1 : -1 ;
-	}
+}
 
-private static function  to2str($str) {
+private static function  to2str($str) 
+{
 		while(strlen($str)<2) $str=' '.$str;
 	return $str;
-	}	
+}	
 	
-private function split_attributes($attr) {
+private function split_attributes($attr) 
+{
 	return preg_split("/[;]+/si",$attr);
 }
 		
-private static function process_list_items($list_items) {
+private static function process_list_items($list_items) 
+{
 	$result_list_items = array();
 	preg_match_all("@\[li](.*?)\[/li]@uis", $list_items, $li_array);
 	$li_array = $li_array[1];
-	if (empty($li_array)) {
+	if (empty($li_array)) 
+	{
 		// we didn't find any [li] tags
 		$list_items_array = explode("[*]", $list_items);
 		foreach ($list_items_array as $li_text) {
@@ -345,9 +364,12 @@ private static function process_list_items($list_items) {
 			$li_text = nl2br($li_text);
 			$result_list_items[] = '<li>'.$li_text.'</li>';
 		}
-	} else {
+	} 
+	else 
+	{
 		// we found [li] tags!
-		foreach ($li_array as $li_text) {
+		foreach ($li_array as $li_text) 
+		{
 			if (!preg_match('/<li>/usi',$li_text)) 
 			$li_text = nl2br($li_text);
 			$result_list_items[] = '<li>'.$li_text.'</li>';
@@ -355,28 +377,33 @@ private static function process_list_items($list_items) {
 	}
 	$list_items = implode("\n", $result_list_items);
 	return $list_items;
-	}
+}
 
-private function find_close_tag($tag,$index_open) {
-	for ($j=$index_open+1;$j<count($this->parse_arr);$j++) {
+private function find_close_tag($tag,$index_open) 
+{
+	for ($j=$index_open+1;$j<count($this->parse_arr);$j++) 
+	{
 		if ((!$this->parse_arr[$j]["open"]) and 
 		   ($this->parse_arr[$j]["tag"]==$this->parse_arr[$index_open]["tag"]) and
 		   ($this->parse_arr[$j]["level"]==$this->parse_arr[$index_open]["level"])) return $j;
-		}		
+	}		
 return -1;	
 }
 
-private function set_parse_output_array() {
+private function set_parse_output_array() 
+{
     $this->out_arr=array();
 	foreach($this->parse_arr as $key=>$item) {
 		if (!$item["open"]) continue; // for all open=true tag
 			$find_key=$this->find_close_tag($item["tag"],$key); // find close tag
-			if ($find_key=="-1") {                              // if not found
+			if ($find_key=="-1") 
+			{                              // if not found
 				$ltag=substr($this->html,$item["pos"],$item["len"]);
 				$rtag="";										// tag nieznany
 				continue; // TODO : maybe self close prosess tag
 			}	
-			else {     // znalazł parę             
+			else 
+			{     // znalazł parę             
 			$ltag=substr($this->html,$item["pos"],$item["len"]);
 			$rtagPos = $this->parse_arr[$find_key]["pos"];
 			$rtagLen = $this->parse_arr[$find_key]["len"];
@@ -396,11 +423,13 @@ private function set_parse_output_array() {
 		"innerLen" =>$innerLen,
 		"tagLeft"=>$ltag,
 		"tagRight"=>$rtag,
-		"attr" =>$item["attr"],);		
+		"attr" =>$item["attr"],
+		);		
 	}
 }
 
-public function getResult() {
+public function getResult() 
+{
 return $this->html;
 }		
 
