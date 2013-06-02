@@ -433,6 +433,11 @@ public function getResult()
 	return $this->html;
 }        
 
+  public function __toString() 
+  {
+    return $this->getResult();
+  }
+
 }
 
 ?>
